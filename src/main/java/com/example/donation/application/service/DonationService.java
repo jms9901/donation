@@ -6,7 +6,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.example.donation.application.dto.DonationHistoryResponse;
+import com.example.donation.domain.donation.service.DonationDomainService;
 import com.example.donation.domain.user.entity.User;
+import com.example.donation.dto.UserContinuousDonationCount;
 import com.example.donation.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,14 +29,16 @@ public class DonationService {
     private final DonationBeneficiaryRepository donationBeneficiaryRepository;
     private final DonationDetailRepository donationDetailRepository;
     private final UserRepository userRepository;
+    private final DonationDomainService donationDomainService;
 
 
     @Autowired
     public DonationService(DonationBeneficiaryRepository donationBeneficiaryRepository, DonationDetailRepository donationDetailRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, DonationDomainService donationDomainService) {
         this.donationBeneficiaryRepository = donationBeneficiaryRepository;
         this.donationDetailRepository = donationDetailRepository;
         this.userRepository = userRepository;
+        this.donationDomainService=donationDomainService;
     }
 
     public List<DonationBeneficiaryResponse> retrieveAllDonationBeneficiary() {
@@ -63,7 +67,6 @@ public class DonationService {
                 .donationBeneficiary(donationBeneficiary)
                 .amount(command.getAmount())
                 .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
 
         // 3. DonationDetail 를 DB 에 저장
@@ -146,36 +149,23 @@ public class DonationService {
 
     // 6. 장기후원자 조회
 
-    public List<String> getlongtermSupporters() {
-        // 1. 모든 User 정보 조회한다 -> UserRepository한테 요청
+    public List<String> getLongTermSupporters() {
         List<User> users = userRepository.findAll();
 
-       // 2. 각 User에 대한 모든 DonationDetail을 조회한다. -> DonationDetailRepesitory한테 요청
-        Map<User, List<DonationDetail>> userDonationDetails = new HashMap<>();
-        for (User user : users) {
-            List<DonationDetail> dusthrDonationDetails = donationDetailRepository.findAllByUserId2(user.getId());
-            userDonationDetails.put(user, dusthrDonationDetails);
-        }
+        // Map<User, Integer>
+        return users.stream()
+                .map(user -> {
+                    List<DonationDetail> donationDetails = donationDetailRepository.findAllByUserOrderByCreatedAtDesc(user.getId());
+                    int count = donationDomainService.calculateContinuousCount(donationDetails);
+                    return new UserContinuousDonationCount(user, count);
+                })
+                .sorted()
+                // 4. Map<User, 연속기부횟수> 에서 연속기부횟수가 가장 큰 3명을 뽑아 반환한다.
+                .limit(3)
+                .map(UserContinuousDonationCount::getUserName)
+                .collect(Collectors.toList());
 
-       // 3. 각 User의 연속기부횟수를 계산한다. -> Domain에게 맡기기
-        Map<User, Integer> userDonationCountMap = new HashMap<>();
-        for (Map.Entry<User, List<DonationDetail>> e : userDonationDetails.entrySet()){
-            User user = e.getKey();
-            List<DonationDetail> userCountDonationDetails = e.getValue();
-            long totalCount = userCountDonationDetails.stream()
-                    .mapToLong(DonationDetail::getId)
-                    .count();
-            userDonationCountMap.put(user, (int)totalCount);
-        }
-
-        // 4. Map<User, 연속기부횟수> 에서 연속기부횟수가 가장 큰 3명을 뽑아 반환한다.
-            return userDonationCountMap.entrySet().stream()
-                    .sorted(Map.Entry.<User, Integer>comparingByValue().reversed())
-                    .limit(3)
-                    .map(entry -> entry.getKey().getName())
-                    .collect(Collectors.toList());
-
-   }
+    }
 
     // 7. 최다후원자 찾기  (돈)
 //    public List<DonationHistoryResponse> getMostSupporters() {

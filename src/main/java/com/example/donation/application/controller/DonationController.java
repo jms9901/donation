@@ -29,6 +29,7 @@ public class DonationController {
     }
 
     @GetMapping("/beneficiaries")
+    @Operation(summary = "기부목록 조회 API")
     public ResponseEntity<List<DonationBeneficiaryResponse>> retrieveAllDonationBeneficiary() {
         return ResponseEntity.ok(donationService.retrieveAllDonationBeneficiary());
     }
@@ -36,6 +37,7 @@ public class DonationController {
     // CRUD (Create, Read, Update, Delete)
     // HTTP Method 뭐를 써야할까요? -> POST
     @LoginAuth
+    @Operation(summary = "기부 API")
     @PostMapping("/api/donation") // 내정보, 얼마줄지, 누구한테
     public ResponseEntity<Void> donation(HttpSession session, @RequestBody DonationRequest request) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -45,6 +47,7 @@ public class DonationController {
 
 
     @GetMapping("/api/totalAmount/{beneficiaryId}")
+    @Operation(summary = "기부 수혜자에 대한 총 기부금액 조회 API")
     // Read로 사용
     public ResponseEntity<Long> getTotalDonationAmount(@PathVariable Long beneficiaryId) {
         Long totalDonationAmount = donationService.getTotalDonationAmount(beneficiaryId);
@@ -60,6 +63,7 @@ public class DonationController {
 
 
     @LoginAuth
+    @Operation(summary = "기부내역 조회 API")
     @GetMapping("/api/donation-history")
     public ResponseEntity<List<DonationHistoryResponse>> retrieveAllDonationHistory(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -70,7 +74,7 @@ public class DonationController {
         return ResponseEntity.ok(resp);
     }
 
-
+    @Operation(summary = "기부내역 조회(페이징처리) API")
     @GetMapping("/api/donation-history/page")
     public ResponseEntity<Page<DonationHistoryResponse>> retrieveAllDonationHistoryWithPage(@RequestParam long userId, @RequestParam(defaultValue = "0") int currentPage) {
         PageRequest pageRequest = PageRequest.of(currentPage, 5);
@@ -78,6 +82,7 @@ public class DonationController {
         return ResponseEntity.ok(resp);
     }
 
+    @Operation(summary = "해당 사용자의 총 기부금 조회 API")
     @LoginAuth
     @GetMapping("/api/donation-history-amount")
     public ResponseEntity<Long> retrieveAllDonationAmount(HttpSession session) {
@@ -89,8 +94,8 @@ public class DonationController {
     // Domain6 장기후원자 개발
     @Operation(summary = "장기 후원자 조회 API")
     @GetMapping("/api/donation-longterm")
-    public ResponseEntity<List<String>> getlongtermSupporters() {
-        return ResponseEntity.ok(donationService.getlongtermSupporters());
+    public ResponseEntity<List<String>> getLongTermSupporters() {
+        return ResponseEntity.ok(donationService.getLongTermSupporters());
     }
 
     // Domain7 최다후원자 개발
@@ -100,6 +105,7 @@ public class DonationController {
 //        return ResponseEntity.ok(donationService.getMostSupporters());
 //    }
 
+    @Operation(summary = "최다 후원자 조회 API")
     @GetMapping("/api/donation-most")
     public ResponseEntity<List<String>> getMostSupporters() {
 

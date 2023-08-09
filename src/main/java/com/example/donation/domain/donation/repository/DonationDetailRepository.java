@@ -21,4 +21,8 @@ public interface DonationDetailRepository extends CrudRepository<DonationDetail,
     List<DonationDetail> findAllByUserId2(@Param("userId") long userId);
 
     Page<DonationDetail> findAllByUserId(long userId, PageRequest pageRequest);
+
+    @Query("SELECT db FROM DonationDetail db WHERE db.user.id = :userId ORDER BY db.createdAt DESC")
+        // @Query(nativeQuery = true, value = "SELECT * FROM donation_detail WHERE user_id = ?")
+    List<DonationDetail> findAllByUserOrderByCreatedAtDesc(@Param("userId") long userId);
 }

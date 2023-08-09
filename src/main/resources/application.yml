@@ -1,15 +1,6 @@
-
 server:
   port: 8084
 
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
-
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3306/donation
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: dbstlr6873
+  profiles:
+    include: datasource

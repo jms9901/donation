@@ -29,6 +29,5 @@ public class DonationDetail {
     private long amount;
 
     private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
 }

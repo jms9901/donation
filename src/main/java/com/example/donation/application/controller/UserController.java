@@ -4,6 +4,7 @@ import com.example.donation.application.dto.UserRequest;
 import com.example.donation.domain.user.entity.User;
 import com.example.donation.annotation.LoginAuth;
 import com.example.donation.application.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ public class UserController {
      return "pong!!!";
      }*/
 
+    @Operation(summary = "회원가입 API")
     @PostMapping("/api/join")
     public Long register(@RequestBody UserRequest req){
 
@@ -35,6 +37,7 @@ public class UserController {
 
     }
 
+    @Operation(summary = "로그인 API")
     @PostMapping("/api/login")
     public User login (@RequestBody UserRequest req , HttpSession session) {
 
@@ -48,6 +51,7 @@ public class UserController {
         return "Hello!!";
     }
 
+    @Operation(summary = "로그인 한 사용자의 메인화면 API")
     @LoginAuth
     @GetMapping("/api/main")
     public String main(){
