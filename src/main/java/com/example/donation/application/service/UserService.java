@@ -36,9 +36,7 @@ public class UserService {
 //        String name = req.getName();
 //        String password = req.getPassword();
 
-
-        User user = new User(null, req.getEmail(), req.getName(), req.getPassword());
-
+        User user = User.forGeneral(req.getEmail(), req.getName(), req.getPassword());
         Optional<User> alreadyUser = userRepository.findByEmail(user.getEmail());
         if (alreadyUser.isPresent()) {
             throw new EmailOverlapException("이메일 중복!", ErrorCode.EMAIL_DUPLICATION);

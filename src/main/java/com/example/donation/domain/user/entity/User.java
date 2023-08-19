@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "uuser")
+@Table(name = "user_with_oauth")
 public class User {
 
     @Id
@@ -19,11 +19,23 @@ public class User {
     @Column(name= "user_id")
     private Long id;
 
-    @Column(unique = true)
     private String email;
     private String name;
     private String password;
 
+    @Column(name = "oauth_login_yn")
+    private boolean isOAuthLogin;
+
+    private String providerName;
+    private long providerId;
+
+    public static User forGeneral(String email, String name, String password) {
+        return new User(null, email, name, password, false, null, 0);
+    }
+
+    public static User forOAuth(String providerName, long providerId, String nickname) {
+        return new User(null, null, nickname, null, true, providerName, providerId);
+    }
 
 
 }
