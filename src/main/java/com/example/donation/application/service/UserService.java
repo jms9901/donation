@@ -31,25 +31,27 @@ public class UserService {
 
     public Long register(UserRequest req) {
 
-//
-//        String email = req.getEmail();
-//        String name = req.getName();
-//        String password = req.getPassword();
-
         User user = User.forGeneral(req.getEmail(), req.getName(), req.getPassword());
-        Optional<User> alreadyUser = userRepository.findByEmail(user.getEmail());
+        /** Optional<User> alreadyUser = userRepository.findByEmail(user.getEmail());
         if (alreadyUser.isPresent()) {
             throw new EmailOverlapException("이메일 중복!", ErrorCode.EMAIL_DUPLICATION);
         } else {
             User saveUser = userRepository.save(user);
 
             return saveUser.getId();
-        }
+        } */
+
+        userRepository.findByEmail((user.getEmail()))
+                .ifPresent(overlapUser -> {
+                    throw new EmailOverlapException("이메일 중복!", ErrorCode.EMAIL_DUPLICATION);
+                });
+        User saveUser = userRepository.save(user);
+        return saveUser.getId();
     }
 
     // 조건문 사용해야......
 
-    public User login(UserRequest req, HttpSession session) {
+    public User login(UserRequest req) {
         User loginUser = userRepository.findByEmail(req.getEmail())
                 .orElseThrow(() -> new EmailNullException(ErrorCode.EMAIL_NULL));
 
@@ -57,7 +59,7 @@ public class UserService {
             throw new PasswordNullException(ErrorCode.PASSWORD_NULL);
         }
 
-        session.setAttribute("loginUser", loginUser); // 세션에 사용자 객체를 저장하도록 수정
+        //session.setAttribute("loginUser", loginUser); // 세션에 사용자 객체를 저장하도록 수정
         return loginUser; // 사용자 객체를 반환하도록 수정
     }
 

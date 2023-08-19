@@ -87,8 +87,12 @@ public class DonationController {
     @GetMapping("/api/donation-history-amount")
     public ResponseEntity<Long> retrieveAllDonationAmount(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
-        Long resp2 = donationService.retrieveAllHistoryAmount(loginUser.getId());
-        return ResponseEntity.ok(resp2);
+
+        // Long resp2 = donationService.retrieveAllHistoryAmount(loginUser.getId());
+        // return ResponseEntity.ok(resp2);
+        // 상기 코드 1줄로 합치기
+
+        return ResponseEntity.ok(donationService.retrieveAllHistoryAmount(loginUser.getId()));
     }
 
     // Domain6 장기후원자 개발
